@@ -29,8 +29,6 @@ client.on('message', async message => {
         message.channel.send("Invalid command! Try again or type \`ldj-help\` to view the available commands");
     }
 
-    
-
     async function start(message, serverQueue) {
         const args = message.content.split(" ");
 
@@ -76,49 +74,49 @@ client.on('message', async message => {
             serverQueue.songs.push(song);
             return message.channel.send(`${song.title} added to queue!`);
         }
+    }
 
-        function play(guild, song) {
-            const serverQueue = queue.get(guild.id);
-            if(!song) {
-                serverQueue.voiceChannel.leave();
-                queue.delete(guild.id);
-                return;
-            }
-
-            const dispatcher = serverQueue.connection
-                .play(ytdl(song.url))
-                .on("finish", () => {
-                    serverQueue.songs.shift();
-                    play(guild, serverQueue.songs[0]);
-                })
-                .on("error", error => console.error(error));
-            dispatcher.setVolumeLogarithmic(serverQueue.volume  / 5);
-            serverQueue.textChannel.send(`Now playing: ${song.title}`);
+    function play(guild, song) {
+        const serverQueue = queue.get(guild.id);
+        if(!song) {
+            serverQueue.voiceChannel.leave();
+            queue.delete(guild.id);
+            return;
         }
 
-        function skip(message, serverQueue) {
-            if(!message.member.voice.channel) {
-                return message.channel.send("You need to be in a voice channel first!");
-            }
+        const dispatcher = serverQueue.connection
+            .play(ytdl(song.url))
+            .on("finish", () => {
+                serverQueue.songs.shift();
+                play(guild, serverQueue.songs[0]);
+            })
+            .on("error", error => console.error(error));
+        dispatcher.setVolumeLogarithmic(serverQueue.volume  / 5);
+        serverQueue.textChannel.send(`Now playing: ${song.title}`);
+    }
 
-            if(!serverQueue) {
-                return message.channel.send("The queue is empty!");
-            }
-            
-            serverQueue.connection.dispatcher.end();
+    function skip(message, serverQueue) {
+        if(!message.member.voice.channel) {
+            return message.channel.send("You need to be in a voice channel first!");
         }
 
-        function stop(message, serverQueue) {
-            if(!message.member.voice.channel) {
-                return message.channel.send("You need to be in a voice channel first!");
-            }
-
-            if(!serverQueue) {
-                return message.channel.send("The queue is empty!");
-            }
-
-            serverQueue.songs = [];
-            serverQueue.connection.dispatcher.end();
+        if(!serverQueue) {
+            return message.channel.send("The queue is empty!");
         }
+        
+        serverQueue.connection.dispatcher.end();
+    }
+
+    function stop(message, serverQueue) {
+        if(!message.member.voice.channel) {
+            return message.channel.send("You need to be in a voice channel first!");
+        }
+
+        if(!serverQueue) {
+            return message.channel.send("The queue is empty!");
+        }
+
+        serverQueue.songs = [];
+        serverQueue.connection.dispatcher.end();
     }
 });
