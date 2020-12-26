@@ -42,7 +42,7 @@ client.on('message', async message => {
             "\`-v (or -volume) <value between 0 and 100>\` change volume");
         return;
     } else if(message.content.startsWith(`${prefix}volume`) || message.content.startsWith(`${prefix}v`)) {
-        volume(message, serverQueue, message.content.split(" ")[1]);
+        volume(message, serverQueue);
         return;
     } else {
         message.channel.send("Invalid command! Try again or type \`-h\` to view the available commands");
@@ -158,7 +158,10 @@ client.on('message', async message => {
                 serverQueue.songs.shift();
                 play(guild, serverQueue.songs[0]);
             })
-            .on("error", error => console.error(error));
+            .on("error", error => {
+                console.error(error);
+                serverQueue.textChannel.send("Something went wrong (dispatcher error).")
+            });
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
         serverQueue.textChannel.send(`Now playing: ${song.title}`);
         } catch(error) {
@@ -193,9 +196,16 @@ client.on('message', async message => {
         serverQueue.connection.dispatcher.end();
     }
 
-    function volume(message, serverQueue, value) {
-        if((value < 0) || (value > 100)) {
-            return message.channel.send("The value must be between 0 and 100!");
+    function volume(message, serverQueue) {
+        let value = "";
+        if(message.content.split(" ").length > 1) {
+            value = message.content.split(" ")[1];
+        } else {
+            return message.channel.send("Usage: \`-v <value between 0 and 100>\`");
+        }
+
+        if((isNaN(value)) || (value < 0) || (value > 100)) {
+            return message.channel.send("The value must be a number between 0 and 100!");
         }
 
         if(!message.member.voice.channel) {
