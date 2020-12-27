@@ -3,6 +3,7 @@ const { prefix } = require("./config.json");
 const ytdl = require("ytdl-core-discord");
 const ytsearch = require("yt-search");
 const ytps = require("youtube-playlist-summary");
+var SpotifyWebApi = require('spotify-web-api-node');
 
 const client = new Discord.Client();
 const queue = new Map();
@@ -11,6 +12,12 @@ const config = {
     PLAYLIST_ITEM_KEY: ['title', 'videoUrl']
 }
 const ps = new ytps(config);
+let tokenDate = Date.now() - 3600000;
+
+let spotifyApi = new SpotifyWebApi({
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+});
 
 client.login(process.env.TOKEN);
 
@@ -89,6 +96,34 @@ client.on('message', async message => {
             } else {
                 url = args[1];
             }
+        } else if(args[1].includes('open.spotify.com/playlist')) {
+            const id = args[1].split('playlist/')[1].split('?si')[0];
+            if((Date.now() - tokenDate) > 3600000) {
+                try {
+                    await spotifyApi.clientCredentialsGrant().then(
+                        function(data) {
+                            tokenDate = Date.now();
+                            spotifyApi.setAccessToken(data.body['access_token']);
+                        },
+                        function(err) { console.log('Something went wrong.', err) }
+                    );
+                } catch (error) {
+                    return message.channel.send('Something went wrong.');
+                }
+            }
+
+            let tracks = [];
+            try {
+                tracks = await getAllTracks(id);
+            } catch(error) {
+                console.log('Something went wrong.');
+            }
+            tracks.forEach(song => {
+                songList.push({
+                    title: song.track.artists[0].name + " - " + song.track.name,
+                    url: undefined
+                });
+            });
         } else {
             const searchQuery = message.content.replace(message.content.split(" ")[0], '');
             const searchResult = await ytsearch(searchQuery);
@@ -150,6 +185,15 @@ client.on('message', async message => {
             queue.delete(guild.id);
             return;
         }
+        
+        let loadingMessage = undefined;
+        if(song.url === undefined) {
+            loadingMessage = await serverQueue.textChannel.send("Loading song...");
+            const searchResult = await ytsearch(song.title);
+            if(searchResult.videos.length > 0) {
+                song.url = searchResult.videos[0].url;
+            }
+        }
 
         try {
             const dispatcher = serverQueue.connection
@@ -162,8 +206,12 @@ client.on('message', async message => {
                 console.error(error);
                 serverQueue.textChannel.send("Something went wrong (dispatcher error).")
             });
-        dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
-        serverQueue.textChannel.send(`Now playing: ${song.title}`);
+            dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
+            if(loadingMessage !== undefined) {
+                loadingMessage.edit(`Now playing: ${song.title}`);
+            } else {
+                serverQueue.textChannel.send(`Now playing: ${song.title}`);
+            }
         } catch(error) {
             serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
             serverQueue.songs.shift();
@@ -220,3 +268,16 @@ client.on('message', async message => {
         serverQueue.connection.dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
     }
 });
+
+async function getAllTracks(playlist) {
+    let tracks = [];
+    const { body } = await spotifyApi.getPlaylistTracks(playlist);
+    tracks = body.items;
+    if (body.total > 100) {
+        for (let i = 1; i < Math.ceil(body.total / 100); i++) {
+            const add = await spotifyApi.getPlaylistTracks(playlist, { offset: 100 * i });
+            tracks = [...tracks, ...add.body.items];
+        }
+    }
+    return tracks;
+}
