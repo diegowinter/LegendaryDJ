@@ -1,5 +1,5 @@
 const ytdl = require("ytdl-core-discord");
-const ytsearch = require("yt-search");
+const ytsr = require("ytsr");
 const ytps = require("youtube-playlist-summary");
 const SpotifyWebApi = require("spotify-web-api-node");
 const play = require("./play");
@@ -124,13 +124,13 @@ async function getYouTubePlaylistTracks(id, message) {
 }
 
 async function getYouTubeTrackByName(searchQuery, message) {
-    const searchResult = await ytsearch(searchQuery);
+    const searchResult = await ytsr(searchQuery, { limit: 1 });
     url = '';
-    if(searchResult.videos.length == 0) {
+    if(searchResult.items.length == 0) {
         message.channel.send(`No results found for \"${searchQuery}\"`);
         return '';
     } else {
-        url = searchResult.videos[0].url;
+        url = searchResult.items[0].url;
     }
     return url;
 }

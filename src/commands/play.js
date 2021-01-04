@@ -1,5 +1,5 @@
 const ytdl = require("ytdl-core-discord");
-const ytsearch = require("yt-search");
+const ytsr = require("ytsr");
 
 module.exports = async function play(guild, song, queue) {
     const serverQueue = queue.get(guild.id);
@@ -12,9 +12,9 @@ module.exports = async function play(guild, song, queue) {
     let loadingMessage = undefined;
     if(song.url === undefined) {
         loadingMessage = await serverQueue.textChannel.send("Loading song...");
-        const searchResult = await ytsearch(song.title);
-        if(searchResult.videos.length > 0) {
-            song.url = searchResult.videos[0].url;
+        const searchResult = await ytsr(song.title, { limit: 1 });
+        if(searchResult.items.length > 0) {
+            song.url = searchResult.items[0].url;
         }
     }
 
