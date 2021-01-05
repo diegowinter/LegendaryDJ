@@ -36,8 +36,12 @@ module.exports = async function start(message, serverQueue, queue) {
                 message.channel.send("Something went wrong.");
             }
         } else {
+            let url = args[1];
+            if(args[1].includes('&list=')) {
+                url = args[1].split('&list=')[0];
+            }
             try {
-                const song = await searchYouTubeTrack(args[1]);
+                const song = await searchYouTubeTrack(url);
                 songList.push(song);
             } catch (error) {
                 if(error.message === "No results found") {
