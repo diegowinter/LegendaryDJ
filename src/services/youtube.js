@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const he = require('he');
 
 const youtube = google.youtube({
     version: 'v3',
@@ -49,7 +50,7 @@ const searchYouTubeTrack = async (searchQuery) => {
         throw new Error("No results found");
     } else {
         return {
-            title: searchResult.data.items[0].snippet.title,
+            title: he.decode(searchResult.data.items[0].snippet.title),
             url: 'https://youtube.com/watch?v=' + searchResult.data.items[0].id.videoId,
         }
     }
