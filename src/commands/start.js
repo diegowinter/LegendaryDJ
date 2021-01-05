@@ -1,14 +1,12 @@
 const ytdl = require("ytdl-core-discord");
-const ytsr = require("ytsr");
-const ytps = require("youtube-playlist-summary");
+const { google } = require('googleapis');
 const SpotifyWebApi = require("spotify-web-api-node");
 const play = require("./play");
 
-const config = {
-    GOOGLE_API_KEY: process.env.YOUTUBE_API_KEY,
-    PLAYLIST_ITEM_KEY: ['title', 'videoUrl']
-}
-const ps = new ytps(config);
+const youtube = google.youtube({
+    version: 'v3',
+    auth: process.env.YOUTUBE_API_KEY
+})
 
 let tokenDate = Date.now() - 3600000;
 let spotifyApi = new SpotifyWebApi({
@@ -33,13 +31,13 @@ module.exports = async function start(message, serverQueue, queue) {
         return message.channel.send("You need to send a link or name of a song in order to play.");
     }
 
-    let url = '';
     let songList = [];
     if((args[1].includes('youtube.com/') || args[1].includes('youtu.be/')) ) {
         if(args[1].includes('/playlist?list=')) {
             songList = await getYouTubePlaylistTracks(args[1].split('/playlist?list=')[1], message);
         } else {
-            url = args[1];
+            const song = await searchYouTubeTrack(args[1], message);
+            songList.push(song);
         }
     } else if(args[1].includes('open.spotify.com/')) {
         if(args[1].includes('/playlist/')) {
@@ -50,22 +48,15 @@ module.exports = async function start(message, serverQueue, queue) {
             songList = await getSpotifyArtistTracks(args[1].split('artist/')[1].split('?si')[0], message);
         } else if (args[1].includes('/track/')) {
             let name = await getSpotifyTrack(args[1].split('track/')[1].split('?si')[0], message);
-            url = await getYouTubeTrackByName(name, message);
+            const song = await searchYouTubeTrack(name, message);
+            songList.push(song);
         }
     } else {
-        url = await getYouTubeTrackByName(message.content.replace(message.content.split(" ")[0], ''), message);
-    }
-
-    if(url !== '') {
-        const songInfo = await ytdl.getInfo(url);
-        const song = {
-            title: songInfo.videoDetails.title,
-            url: songInfo.videoDetails.video_url
-        };
+        const song = await searchYouTubeTrack(message.content.replace(message.content.split(" ")[0], ''), message);
         songList.push(song);
     }
 
-    if((url === '') && (songList.length == 0)) {
+    if(songList.length == 0) {
         return;
     }
     
@@ -104,35 +95,65 @@ module.exports = async function start(message, serverQueue, queue) {
     }
 }
 
+async function getAllYouTubePlaylistTracks(id) {
+    let playlist = await youtube.playlistItems.list({
+        part: 'snippet',
+        playlistId: id,
+        maxResults: 50
+    });
+    let list = [...playlist.data.items];
+    while(playlist.data.nextPageToken !== undefined) {
+        playlist = await youtube.playlistItems.list({
+            part: 'snippet',
+            playlistId: id,
+            maxResults: 50,
+            pageToken: playlist.data.nextPageToken
+        });
+
+        list = [...list, ...playlist.data.items];
+    }
+    return list;
+}
+
 async function getYouTubePlaylistTracks(id, message) {
     let songList = [];
     try {
-        await ps.getPlaylistItems(id)
-            .then((result) => {
-                result.items.forEach(video => {
-                    songList.push({
-                        title: video.title,
-                        url: video.videoUrl
-                    });
-                });
+        const list = await getAllYouTubePlaylistTracks(id, undefined, []);
+        list.forEach(track => {
+            songList.push({
+                title: track.snippet.title,
+                url: track.snippet.resourceId.videoId
             })
+        })
+        return songList;
     } catch(error) {
         message.channel.send("Something went wrong.");
         return [];
     }
-    return songList;
 }
 
-async function getYouTubeTrackByName(searchQuery, message) {
-    const searchResult = await ytsr(searchQuery, { limit: 1 });
-    url = '';
-    if(searchResult.items.length == 0) {
-        message.channel.send(`No results found for \"${searchQuery}\"`);
-        return '';
-    } else {
-        url = searchResult.items[0].url;
+async function searchYouTubeTrack(searchQuery, message) {
+    try {
+        const searchResult = await youtube.search.list({
+            part: 'snippet',
+            q: searchQuery,
+            maxResults: 1,
+            type: 'video'
+        });
+        
+        if(searchResult.data.items[0] === undefined) {
+            message.channel.send(`No results found for \"${searchQuery}\"`);
+            return {};
+        } else {
+            return {
+                title: searchResult.data.items[0].snippet.title,
+                url: 'https://youtube.com/watch?v=' + searchResult.data.items[0].id.videoId,
+            }
+        }
+    } catch(error) {
+        message.channel.send("Something went wrong.");
+        return {};
     }
-    return url;
 }
 
 async function verifySpotifyAuth(message) {

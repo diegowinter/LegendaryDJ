@@ -14,8 +14,8 @@
         "discord.js": "^12.5.1",
         "ffmpeg": "^0.0.4",
         "fluent-ffmpeg": "^2.1.2",
+        "googleapis": "^66.0.0",
         "spotify-web-api-node": "^5.0.0",
-        "youtube-playlist-summary": "^2.1.4",
         "ytdl-core-discord": "^1.2.5",
         "ytsr": "^3.2.1"
     }
