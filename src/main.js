@@ -4,10 +4,11 @@ const start = require("./commands/start");
 const skip = require("./commands/skip");
 const stop = require("./commands/stop");
 const volume = require("./commands/volume");
+const queue = require("./commands/queue");
 const help = require("./commands/help");
 
 const client = new Discord.Client();
-const queue = new Map();
+const sQueue = new Map();
 client.login(process.env.DISCORD_TOKEN);
 
 client.on('ready', () => {
@@ -19,10 +20,10 @@ client.on('message', async message => {
     if(message.author.bot) return;
     if(!message.content.startsWith(prefix)) return;
 
-    const serverQueue = queue.get(message.guild.id);
+    const serverQueue = sQueue.get(message.guild.id);
 
     if(message.content.startsWith(`${prefix}play`) || message.content.startsWith(`${prefix}p`)) {
-        start(message, serverQueue, queue);
+        start(message, serverQueue, sQueue);
         return;
     } else if(message.content.startsWith(`${prefix}skip`) || message.content.startsWith(`${prefix}sk`)) {
         skip(message, serverQueue);
@@ -36,7 +37,11 @@ client.on('message', async message => {
     } else if(message.content.startsWith(`${prefix}volume`) || message.content.startsWith(`${prefix}v`)) {
         volume(message, serverQueue);
         return;
+    } else if(message.content.startsWith(`${prefix}queue`) || message.content.startsWith(`${prefix}q`)) {
+        queue(message, serverQueue);
+        return;
     } else {
         message.channel.send("Invalid command! Try again or type \`-h\` to view the available commands");
+        return;
     }
 });
