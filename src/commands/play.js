@@ -16,7 +16,7 @@ module.exports = async function play(guild, song, queue) {
             const searchResult = await searchYouTubeTrack(song.title);
             song.url = searchResult.url;
         } catch (error) {
-            console.log(error);
+            console.log('Error (searching Spotify song)', error);
             serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
         }    
     }
@@ -29,7 +29,7 @@ module.exports = async function play(guild, song, queue) {
                 play(guild, serverQueue.songs[0], queue);
             })
             .on("error", error => {
-                console.error(error);
+                console.error('Error (dispatcher error)', error);
                 serverQueue.textChannel.send("Something went wrong (dispatcher error).")
             });
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
@@ -39,6 +39,7 @@ module.exports = async function play(guild, song, queue) {
             serverQueue.textChannel.send(`Now playing: ${song.title}`);
         }
     } catch(error) {
+        console.log('erro (2)', error);
         serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
         serverQueue.songs.shift();
         play(guild, serverQueue.songs[0], queue);
