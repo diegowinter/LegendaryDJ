@@ -41,8 +41,8 @@ module.exports = async function queue(message, serverQueue) {
     const queuePages = splitQueue([...serverQueue.songs]);
 
     let songList = '';
-    queuePages[value-1].forEach(song => {
-        songList += '• ' + song.title + '\n'
+    queuePages[value-1].forEach((song, index) => {
+        songList += `${((value-1) * 10) + (index + 1)} - ${song.title}\n`;
     });
 
     const queueEmbed = new Discord.MessageEmbed()
