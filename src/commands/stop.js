@@ -7,6 +7,10 @@ module.exports = function stop(message, serverQueue) {
         return message.channel.send("The queue is empty!");
     }
 
-    serverQueue.songs = [];
-    serverQueue.connection.dispatcher.end();
+    try {
+        serverQueue.songs = [];
+        serverQueue.connection.dispatcher.end();
+    } catch(error) {
+        console.log("Error (stop). Maybe a user tried to stop the playback when the queue was loading.");
+    }
 }
