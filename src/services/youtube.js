@@ -32,7 +32,7 @@ const getYouTubePlaylistTracks = async (id) => {
     list.forEach(track => {
         songList.push({
             title: track.snippet.title,
-            url: track.snippet.resourceId.videoId
+            url: 'https://youtu.be/' + track.snippet.resourceId.videoId
         })
     })
     return songList;

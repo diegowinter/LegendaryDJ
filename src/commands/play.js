@@ -1,5 +1,6 @@
 const ytdl = require("ytdl-core-discord");
 const { searchYouTubeTrack } = require("../services/youtube");
+const Discord = require('discord.js');
 
 module.exports = async function play(guild, song, queue) {
     const serverQueue = queue.get(guild.id);
@@ -33,11 +34,18 @@ module.exports = async function play(guild, song, queue) {
                 serverQueue.textChannel.send("Something went wrong (dispatcher error).")
             });
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
-        if(loadingMessage !== undefined) {
-            loadingMessage.edit(`Now playing: ${song.title}`);
-        } else {
-            serverQueue.textChannel.send(`Now playing: ${song.title}`);
+        const queueEmbed = new Discord.MessageEmbed()
+            .setColor('#4f8a48')
+            .setTitle('Now playing')
+            .setDescription(song.title)
+            .setURL(song.url)
+        if(serverQueue.songs[1] != undefined) {
+            queueEmbed.setFooter(`Up next: ${serverQueue.songs[1].title}`);
         }
+        if(loadingMessage !== undefined) {
+            loadingMessage.delete();
+        }
+        serverQueue.textChannel.send(queueEmbed);
     } catch(error) {
         console.log('erro (2)', error);
         serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
