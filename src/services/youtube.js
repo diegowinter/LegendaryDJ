@@ -1,58 +1,28 @@
-const { google } = require('googleapis');
-const he = require('he');
-
-const youtube = google.youtube({
-    version: 'v3',
-    auth: process.env.YOUTUBE_API_KEY
-})
-
-async function getAllYouTubePlaylistTracks(id) {
-    let playlist = await youtube.playlistItems.list({
-        part: 'snippet',
-        playlistId: id,
-        maxResults: 50
-    });
-    let list = [...playlist.data.items];
-    while(playlist.data.nextPageToken !== undefined) {
-        playlist = await youtube.playlistItems.list({
-            part: 'snippet',
-            playlistId: id,
-            maxResults: 50,
-            pageToken: playlist.data.nextPageToken
-        });
-
-        list = [...list, ...playlist.data.items];
-    }
-    return list;
-}
+const ytfps = require('ytfps');
+const ytsr = require('ytsr');
+const { durationToMillis } = require('../util/time');
 
 const getYouTubePlaylistTracks = async (id) => {
+    const list = await ytfps(id);
     let songList = [];
-    const list = await getAllYouTubePlaylistTracks(id, undefined, []);
-    list.forEach(track => {
+    list.videos.forEach(item => {
         songList.push({
-            title: track.snippet.title,
-            url: 'https://youtu.be/' + track.snippet.resourceId.videoId
-        })
-    })
+            title: item.title,
+            url: item.url,
+            duration: item.milis_length
+        });
+    });
+
     return songList;
 }
 
 const searchYouTubeTrack = async (searchQuery) => {
-    const searchResult = await youtube.search.list({
-        part: 'snippet',
-        q: searchQuery,
-        maxResults: 1,
-        type: 'video'
-    });
-    
-    if(searchResult.data.items[0] === undefined) {
-        throw new Error("No results found");
-    } else {
-        return {
-            title: he.decode(searchResult.data.items[0].snippet.title),
-            url: 'https://youtube.com/watch?v=' + searchResult.data.items[0].id.videoId,
-        }
+    const searchResult = await ytsr(searchQuery, { limit: 1 });
+
+    return {
+        title: searchResult.items[0].title,
+        url: searchResult.items[0].url,
+        duration: durationToMillis(searchResult.items[0].duration)
     }
 }
 

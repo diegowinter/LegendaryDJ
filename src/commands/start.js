@@ -1,3 +1,4 @@
+const Discord = require("discord.js");
 const play = require("./play");
 const {
     searchYouTubeTrack,
@@ -9,6 +10,7 @@ const {
     getSpotifyArtistTracks,
     getSpotifyTrack
 } = require("../services/spotify");
+const { millisToDuration } = require("../util/time");
 
 module.exports = async function start(message, serverQueue, queue) {
     const args = message.content.split(" ");
@@ -37,8 +39,8 @@ module.exports = async function start(message, serverQueue, queue) {
             }
         } else {
             let url = args[1];
-            if(args[1].includes('&list=')) {
-                url = args[1].split('&list=')[0];
+            if(args[1].includes('&')) {
+                url = args[1].split('&')[0];
             }
             try {
                 const song = await searchYouTubeTrack(url);
@@ -93,8 +95,20 @@ module.exports = async function start(message, serverQueue, queue) {
         }
     }
 
+    let queuePreview = '';
     if(songList.length == 0) {
         return;
+    } else {
+        queuePreview += `${songList[0].title} (${millisToDuration(songList[0].duration)})\n`;
+        if(songList[1] != undefined) {
+            queuePreview += `${songList[1].title} (${millisToDuration(songList[1].duration)})\n`;
+        }
+        if(songList[2] != undefined) {
+            queuePreview += `${songList[2].title} (${millisToDuration(songList[2].duration)})\n`;
+            if((songList.length - 3) > 0) {
+                queuePreview += `... and ${songList.length - 3} more`;
+            }
+        }
     }
     
     if(!serverQueue) {
@@ -109,7 +123,11 @@ module.exports = async function start(message, serverQueue, queue) {
         
         queue.set(message.guild.id, queueServerInstance);
         if(songList.length > 1){
-            message.channel.send(`Enqueued ${songList.length} songs!`);
+            message.channel.send(new Discord.MessageEmbed()
+                .setColor('#345b99')
+                .setTitle('Queued')
+                .setDescription(queuePreview)
+            );
         }
         queueServerInstance.songs = queueServerInstance.songs.concat(songList);
 
@@ -125,9 +143,17 @@ module.exports = async function start(message, serverQueue, queue) {
     } else {
         serverQueue.songs = serverQueue.songs.concat(songList);
         if(songList.length == 1) {
-            return message.channel.send(`${songList[0].title} added to queue!`);
+            return message.channel.send(new Discord.MessageEmbed()
+                .setColor('#345b99')
+                .setTitle('Queued')
+                .setDescription(queuePreview)
+            );
         } else if(songList.length > 1) {
-            return message.channel.send(`Enqueued ${songList.length} songs!`);
+            message.channel.send(new Discord.MessageEmbed()
+                .setColor('#345b99')
+                .setTitle('Queued')
+                .setDescription(queuePreview)
+            );
         } 
     }
 }

@@ -28,6 +28,7 @@ async function getAllPlaylistTracks(playlist) {
             tracks = [...tracks, ...add.body.items];
         }
     }
+
     return tracks;
 }
 
@@ -38,23 +39,27 @@ const getSpotifyPlaylistTracks = async (id) => {
     tracks.forEach(song => {
         songList.push({
             title: song.track.artists[0].name + " - " + song.track.name,
-            url: undefined
+            url: undefined,
+            duration: song.track.duration_ms
         });
     });
+
     return songList;
 }
 
 const getSpotifyAlbumTracks = async (id) => {
     await verifySpotifyAuth();
     let songList = [];
-    const { body } = await spotifyApi.getAlbumTracks(id);
-    const tracks = body.items;
+    const { body } = await spotifyApi.getAlbum(id);
+    const tracks = body.tracks.items;
     tracks.forEach(song => {
         songList.push({
             title: song.artists[0].name + " - " + song.name,
-            url: undefined
+            url: undefined,
+            duration: song.duration_ms
         });
     });
+
     return songList;
 }
 
@@ -66,9 +71,11 @@ const getSpotifyArtistTracks = async (id) => {
     tracks.forEach(song => {
         songList.push({
             title: song.artists[0].name + " - " + song.name,
-            url: undefined
+            url: undefined,
+            duration: song.duration_ms
         });
     });
+
     return songList;
 }
 
@@ -76,6 +83,7 @@ const getSpotifyTrack = async (id) => {
     await verifySpotifyAuth();
     const { body } = await spotifyApi.getTrack(id);
     const track = body.name;
+    
     return track;
 }
 

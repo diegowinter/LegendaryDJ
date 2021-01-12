@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { millisToDuration } = require("../util/time");
 
 module.exports = async function queue(message, serverQueue) {
     let value = "";
@@ -31,18 +32,18 @@ module.exports = async function queue(message, serverQueue) {
         return message.channel.send("The page " + value + " does not exist in the current queue.");
     }
 
-    let queueMessage = '';
+    let totalDuration = 0;
     serverQueue.songs.forEach(song => {
-        queueMessage += song.title + '\n';
+        totalDuration += song.duration;
     });
 
-    let nowPlaying = serverQueue.songs[0].title;
+    let nowPlaying = `${serverQueue.songs[0].title} (${millisToDuration(serverQueue.songs[0].duration)})`;
 
     const queuePages = splitQueue([...serverQueue.songs]);
 
     let songList = '';
     queuePages[value-1].forEach((song, index) => {
-        songList += `${((value-1) * 10) + (index + 1)} - ${song.title}\n`;
+        songList += `${((value-1) * 10) + (index + 1)} - ${song.title} (${millisToDuration(song.duration)})\n`;
     });
 
     const queueEmbed = new Discord.MessageEmbed()
@@ -50,7 +51,7 @@ module.exports = async function queue(message, serverQueue) {
         .setTitle('Queue')
         .addField('Now playing', nowPlaying)
         .addField('Up next', songList)
-        .setFooter(`Total: ${totalLength - 1} • Page: ${value}/${pages} • Navigation: -q <page index>`);
+        .setFooter(`Total: ${totalLength - 1} (${millisToDuration(totalDuration)}) • Page: ${value}/${pages}`);
     message.channel.send(queueEmbed);
 }
 

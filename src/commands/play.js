@@ -1,6 +1,7 @@
 const ytdl = require("ytdl-core-discord");
 const { searchYouTubeTrack } = require("../services/youtube");
-const Discord = require('discord.js');
+const Discord = require("discord.js");
+const { millisToDuration } = require("../util/time");
 
 module.exports = async function play(guild, song, queue) {
     const serverQueue = queue.get(guild.id);
@@ -34,12 +35,13 @@ module.exports = async function play(guild, song, queue) {
                 serverQueue.textChannel.send("Something went wrong (dispatcher error).")
             });
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
+        const duration = millisToDuration(song.duration)
         const queueEmbed = new Discord.MessageEmbed()
             .setColor('#4f8a48')
             .setTitle('Now playing')
-            .setDescription(song.title)
+            .setDescription(`${song.title} (${duration})`)
             .setURL(song.url)
-        if(serverQueue.songs[1] != undefined) {
+        if(serverQueue.songs[1] !== undefined) {
             queueEmbed.setFooter(`Up next: ${serverQueue.songs[1].title}`);
         }
         if(loadingMessage !== undefined) {
