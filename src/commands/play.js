@@ -20,7 +20,7 @@ module.exports = async function play(guild, song, queue) {
         } catch (error) {
             console.log('Error (searching Spotify song)', error);
             serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
-        }    
+        }
     }
 
     try {
@@ -47,7 +47,10 @@ module.exports = async function play(guild, song, queue) {
         if(loadingMessage !== undefined) {
             loadingMessage.delete();
         }
-        serverQueue.textChannel.send(queueEmbed);
+        if(serverQueue.npMessage != null) {
+            serverQueue.npMessage.delete();
+        }
+        serverQueue.npMessage = await serverQueue.textChannel.send(queueEmbed);
     } catch(error) {
         console.log('erro (2)', error);
         serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);

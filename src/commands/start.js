@@ -119,6 +119,7 @@ module.exports = async function start(message, serverQueue, queue) {
             songs: [],
             volume: 100,
             playing: true,
+            npMessage: null
         };
         
         queue.set(message.guild.id, queueServerInstance);
