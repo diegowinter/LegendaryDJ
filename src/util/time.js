@@ -6,7 +6,7 @@ const millisToDuration = millis => {
     if(hours === 0) {
         return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
     } else {
-        return hours + ":" + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+        return hours + ":" + (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
     }
 }
 
