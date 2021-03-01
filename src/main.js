@@ -7,6 +7,7 @@ const volume = require("./commands/volume");
 const queue = require("./commands/queue");
 const help = require("./commands/help");
 const lyrics = require("./commands/lyrics");
+const nowPlaying = require("./commands/nowPlaying");
 
 const client = new Discord.Client();
 const sQueue = new Map();
@@ -43,6 +44,9 @@ client.on('message', async message => {
         return;
     } else if(message.content.startsWith(`${prefix}lyrics`) || message.content.startsWith(`${prefix}l`)) {
         lyrics(message, serverQueue);
+        return;
+    } else if(message.content.startsWith(`${prefix}nowplaying`) || message.content.startsWith(`${prefix}np`)) {
+        nowPlaying(message, serverQueue);
         return;
     } else {
         message.channel.send("Invalid command! Try again or type \`-h\` to view the available commands");
