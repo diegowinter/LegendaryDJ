@@ -6,7 +6,7 @@ module.exports = function skip(message, serverQueue) {
         value = 1;
     }
 
-    if((isNaN(value)) || (value < 0)) {
+    if((isNaN(value)) || (value <= 0)) {
         return message.channel.send("The song index must to be a positive number!");
     }
 
