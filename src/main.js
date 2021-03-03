@@ -33,7 +33,7 @@ client.on('message', async message => {
         skip(message, serverQueue);
         return;
     } else if(message.content.startsWith(`${prefix}stop`) || message.content.startsWith(`${prefix}st`)) {
-        stop(message, serverQueue);
+        stop(message, serverQueue, sQueue);
         return;
     } else if(message.content.startsWith(`${prefix}help`) || message.content.startsWith(`${prefix}h`)) {
         help(message);
