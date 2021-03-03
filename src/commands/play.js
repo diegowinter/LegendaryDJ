@@ -8,6 +8,7 @@ module.exports = async function play(guild, song, queue) {
     if(!song) {
         serverQueue.voiceChannel.leave();
         queue.delete(guild.id);
+        serverQueue.textChannel.send("End of the queue. Disconnected.");
         return;
     }
     

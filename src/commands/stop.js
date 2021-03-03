@@ -10,6 +10,7 @@ module.exports = function stop(message, serverQueue) {
     try {
         serverQueue.songs = [];
         serverQueue.connection.dispatcher.end();
+        message.channel.send('Disconnected.');
     } catch(error) {
         console.log("Error (stop). Maybe a user tried to stop the playback when the queue was loading.");
     }

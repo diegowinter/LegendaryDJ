@@ -20,4 +20,5 @@ module.exports = function volume(message, serverQueue) {
 
     serverQueue.volume = value;
     serverQueue.connection.dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
+    message.react('👍');
 }
