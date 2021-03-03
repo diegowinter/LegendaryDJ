@@ -13,7 +13,7 @@ module.exports = async function nowPlaying(message, serverQueue) {
   const progressInSecs = serverQueue.connection.dispatcher.streamTime;
   const totalProportion = serverQueue.songs[0].duration / 10;
   const a = progressInSecs / totalProportion;
-  let progress = `${millisToDuration(serverQueue.connection.dispatcher.streamTime)} `;
+  let progress = `\`${millisToDuration(serverQueue.connection.dispatcher.streamTime)} `;
   for(i=0; i<a; i++) {
     progress += "▬";
   }
@@ -21,12 +21,14 @@ module.exports = async function nowPlaying(message, serverQueue) {
   for(i=a+1; i<9; i++) {
     progress += "▬";
   }
-  progress += ` ${millisToDuration(serverQueue.songs[0].duration)}`
+  progress += ` ${millisToDuration(serverQueue.songs[0].duration)}\``
+
+  const currentVolume = `\`🔊 ${serverQueue.volume}\``;
 
   const queueEmbed = new Discord.MessageEmbed()
     .setColor('#59378c')
     .setTitle('Now playing')
-    .addField(serverQueue.songs[0].title, progress)
+    .addField(serverQueue.songs[0].title, `${progress} ${currentVolume}`)
     .setURL(serverQueue.songs[0].url);
     
   if(serverQueue.songs[1] !== undefined) {
