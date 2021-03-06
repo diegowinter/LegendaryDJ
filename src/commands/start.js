@@ -118,8 +118,10 @@ module.exports = async function start(message, serverQueue, queue) {
             connection: null,
             songs: [],
             volume: 100,
+            stream: null,
             playing: true,
-            npMessage: null
+            npMessage: null,
+            currentSeekValue: 0
         };
         
         queue.set(message.guild.id, queueServerInstance);
@@ -135,7 +137,7 @@ module.exports = async function start(message, serverQueue, queue) {
         try {
             var connection = await voiceChannel.join();
             queueServerInstance.connection = connection;
-            play(message.guild, queueServerInstance.songs[0], queue);
+            play(message, queueServerInstance.songs[0], queue, false);
         } catch(err) {
             console.error(err);
             queue.delete(message.guild.id);

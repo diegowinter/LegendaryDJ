@@ -10,10 +10,10 @@ module.exports = async function nowPlaying(message, serverQueue) {
     return message.channel.send("The queue is empty!");
   }
 
-  const progressInSecs = serverQueue.connection.dispatcher.streamTime;
+  const progressInSecs = serverQueue.connection.dispatcher.streamTime + (serverQueue.currentSeekValue * 1000);
   const totalProportion = serverQueue.songs[0].duration / 10;
   const a = progressInSecs / totalProportion;
-  let progress = `\`${millisToDuration(serverQueue.connection.dispatcher.streamTime)} `;
+  let progress = `\`${millisToDuration(serverQueue.connection.dispatcher.streamTime + (serverQueue.currentSeekValue * 1000))} `;
   for(i=0; i<a; i++) {
     progress += "▬";
   }
