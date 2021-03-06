@@ -6,6 +6,9 @@
     "scripts": {
         "start": "node src/main.js"
     },
+    "engines": {
+        "node": "15.x"
+    },
     "keywords": [],
     "author": "",
     "license": "ISC",
