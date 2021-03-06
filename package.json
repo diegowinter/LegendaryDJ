@@ -1,6 +1,6 @@
 {
     "name": "legendarydj",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "description": "Discord music bot",
     "main": "index.js",
     "scripts": {
