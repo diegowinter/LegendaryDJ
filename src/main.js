@@ -27,49 +27,49 @@ client.on('message', async message => {
 
   const serverQueue = sQueue.get(message.guild.id);
 
-  if (message.content.startsWith(`${prefix}play`) || message.content.startsWith(`${prefix}p`)) {
-    start(message, serverQueue, sQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}skip`) || message.content.startsWith(`${prefix}sk`)) {
-    skip(message, serverQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}stop`) || message.content.startsWith(`${prefix}st`)) {
-    stop(message, serverQueue, sQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}help`) || message.content.startsWith(`${prefix}h`)) {
-    help(message);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}volume`) || message.content.startsWith(`${prefix}v`)) {
-    volume(message, serverQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}queue`) || message.content.startsWith(`${prefix}q`)) {
-    queue(message, serverQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}lyrics`) || message.content.startsWith(`${prefix}l`)) {
-    lyrics(message, serverQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}nowplaying`) || message.content.startsWith(`${prefix}np`)) {
-    nowPlaying(message, serverQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}remove`) || message.content.startsWith(`${prefix}rm`)) {
-    remove(message, serverQueue);
-
-    return;
-  } else if (message.content.startsWith(`${prefix}seek`) || message.content.startsWith(`${prefix}se`)) {
-    seek(message, serverQueue, sQueue);
-
-    return;
-  } else {
-    message.channel.send("Invalid command! Try again or type \`-h\` to view the available commands");
-    
-    return;
+  switch (message.content.toLowerCase().split(' ')[0]) {
+    case `${prefix}p`:
+    case `${prefix}play`:
+      start(message, serverQueue, sQueue);
+      return;
+    case `${prefix}sk`:
+    case `${prefix}skip`:
+      skip(message, serverQueue);
+      return;
+    case `${prefix}st`:
+    case `${prefix}stop`:
+      stop(message, serverQueue, sQueue);
+      return;
+    case `${prefix}h`:
+    case `${prefix}help`:
+      help(message);
+      return;
+    case `${prefix}v`:
+    case `${prefix}volume`:
+      volume(message, serverQueue);
+      return;
+    case `${prefix}q`:
+    case `${prefix}queue`:
+      queue(message, serverQueue);
+      return;
+    case `${prefix}l`:
+    case `${prefix}lyrics`:
+      lyrics(message, serverQueue);
+      return;
+    case `${prefix}np`:
+    case `${prefix}nowplaying`:
+      nowPlaying(message, serverQueue);
+      return;
+    case `${prefix}rm`:
+    case `${prefix}remove`:
+      remove(message, serverQueue);
+      return;
+    case `${prefix}se`:
+    case `${prefix}seek`:
+      seek(message, serverQueue, sQueue);
+      return;
+    default:
+      message.channel.send("Invalid command! Try again or type \`-help\` to view the available commands");
+      return;
   }
 });
