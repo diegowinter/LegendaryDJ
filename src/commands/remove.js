@@ -26,6 +26,6 @@ module.exports = function remove(message, serverQueue) {
     serverQueue.songs.splice(value, 1);
     message.react('👍');
   } catch (error) {
-    console.log('Error: remove command');
+    console.log('Error (remove command):', error);
   }
 }
