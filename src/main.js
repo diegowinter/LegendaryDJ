@@ -57,13 +57,23 @@ let controlButtons = new discordButtons.MessageActionRow()
 client.on('message', async message => {
   if(message.author.bot) return;
   if(!message.content.startsWith(prefix)) return;
+
+  const commandContent = message.content.toLowerCase().split(' ')[0];
+
+  let response;
+
+  if (commandContent == `${prefix}h` || commandContent == `${prefix}help`) {
+    response = help(message);
+    if (response) message.channel.send(response);
+    return;
+  }
+
   if (!message.member.voice.channel) {
-    return await message.channel.send('You must to be in a voice channel.', true)
+    return await message.channel.send('You must to be in a voice channel.')
   }
 
   const serverQueue = sQueue.get(message.guild.id);
 
-  let response;
   switch (message.content.toLowerCase().split(' ')[0]) {
     case `${prefix}p`:
     case `${prefix}play`:
@@ -77,11 +87,6 @@ client.on('message', async message => {
     case `${prefix}st`:
     case `${prefix}stop`:
       response = stop(serverQueue, sQueue);
-      if (response) message.channel.send(response);
-      return;
-    case `${prefix}h`:
-    case `${prefix}help`:
-      response = help(message);
       if (response) message.channel.send(response);
       return;
     case `${prefix}v`:
