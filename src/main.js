@@ -11,48 +11,18 @@ const lyrics = require("./commands/lyrics");
 const nowPlaying = require("./commands/nowPlaying");
 const remove = require("./commands/remove");
 const seek = require("./commands/seek");
+const controlButtons = require('./util/buttons');
 
 const client = new Discord.Client();
 const sQueue = new Map();
 client.login(process.env.DISCORD_TOKEN);
 
 require('discord-buttons')(client);
-const discordButtons = require('discord-buttons');
 
 client.on('ready', () => {
   console.log('Connected!');
   client.user.setActivity("-help", { type: "LISTENING" });
 });
-
-let stopButton = new discordButtons.MessageButton()
-    .setLabel('Stop')
-    .setStyle('green')
-    .setEmoji('⏹')
-    .setID('stop-button');
-    
-let skipButton = new discordButtons.MessageButton()
-    .setLabel('Skip')
-    .setStyle('green')
-    .setEmoji('⏭')
-    .setID('skip-button');
-
-let queueButton = new discordButtons.MessageButton()
-    .setLabel('Queue')
-    .setStyle('green')
-    .setEmoji('📑')
-    .setID('queue-button');
-
-let lyricsButton = new discordButtons.MessageButton()
-    .setLabel('Lyrics')
-    .setStyle('green')
-    .setEmoji('📝')
-    .setID('lyrics-button');
-
-let controlButtons = new discordButtons.MessageActionRow()
-    .addComponent(stopButton)
-    .addComponent(skipButton)
-    .addComponent(queueButton)
-    .addComponent(lyricsButton)
 
 client.on('message', async message => {
   if(message.author.bot) return;
