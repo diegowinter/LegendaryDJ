@@ -12,7 +12,7 @@ const {
 } = require("../services/spotify");
 const { millisToDuration } = require("../util/time");
 
-module.exports = async function start(message, serverQueue, queue) {
+module.exports = async function start(message, serverQueue, queue, controlButtons) {
   const args = message.content.split(" ");
 
   const voiceChannel = message.member.voice.channel;
@@ -113,6 +113,7 @@ module.exports = async function start(message, serverQueue, queue) {
   
   if (!serverQueue) {
     const queueServerInstance = {
+      message: message,
       textChannel: message.channel,
       voiceChannel: voiceChannel,
       connection: null,
@@ -137,7 +138,7 @@ module.exports = async function start(message, serverQueue, queue) {
     try {
       var connection = await voiceChannel.join();
       queueServerInstance.connection = connection;
-      play(message, queueServerInstance.songs[0], queue, false);
+      play(message, queueServerInstance.songs[0], queue, false, controlButtons);
     } catch (err) {
       console.error(err);
       queue.delete(message.guild.id);

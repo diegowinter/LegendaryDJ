@@ -16,41 +16,83 @@ const client = new Discord.Client();
 const sQueue = new Map();
 client.login(process.env.DISCORD_TOKEN);
 
+require('discord-buttons')(client);
+const discordButtons = require('discord-buttons');
+
 client.on('ready', () => {
   console.log('Connected!');
   client.user.setActivity("-help", { type: "LISTENING" });
 });
 
+let stopButton = new discordButtons.MessageButton()
+    .setLabel('Stop')
+    .setStyle('green')
+    .setEmoji('⏹')
+    .setID('stop-button');
+    
+let skipButton = new discordButtons.MessageButton()
+    .setLabel('Skip')
+    .setStyle('green')
+    .setEmoji('⏭')
+    .setID('skip-button');
+
+let queueButton = new discordButtons.MessageButton()
+    .setLabel('Queue')
+    .setStyle('green')
+    .setEmoji('📑')
+    .setID('queue-button');
+
+let lyricsButton = new discordButtons.MessageButton()
+    .setLabel('Lyrics')
+    .setStyle('green')
+    .setEmoji('📝')
+    .setID('lyrics-button');
+
+let controlButtons = new discordButtons.MessageActionRow()
+    .addComponent(stopButton)
+    .addComponent(skipButton)
+    .addComponent(queueButton)
+    .addComponent(lyricsButton)
+
 client.on('message', async message => {
   if(message.author.bot) return;
   if(!message.content.startsWith(prefix)) return;
+  if (!message.member.voice.channel) {
+    return await message.channel.send('You must to be in a voice channel.', true)
+  }
 
   const serverQueue = sQueue.get(message.guild.id);
 
+  let response;
   switch (message.content.toLowerCase().split(' ')[0]) {
     case `${prefix}p`:
     case `${prefix}play`:
-      start(message, serverQueue, sQueue);
+      start(message, serverQueue, sQueue, controlButtons);
       return;
     case `${prefix}sk`:
     case `${prefix}skip`:
-      skip(message, serverQueue);
+      response = skip(serverQueue, false, message);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}st`:
     case `${prefix}stop`:
-      stop(message, serverQueue, sQueue);
+      response = stop(serverQueue, sQueue);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}h`:
     case `${prefix}help`:
-      help(message);
+      response = help(message);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}v`:
     case `${prefix}volume`:
-      volume(message, serverQueue);
+      response = volume(message, serverQueue);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}q`:
     case `${prefix}queue`:
-      queue(message, serverQueue);
+      response = await queue(serverQueue, false, message);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}l`:
     case `${prefix}lyrics`:
@@ -58,18 +100,53 @@ client.on('message', async message => {
       return;
     case `${prefix}np`:
     case `${prefix}nowplaying`:
-      nowPlaying(message, serverQueue);
+      response = await nowPlaying(message, serverQueue);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}rm`:
     case `${prefix}remove`:
-      remove(message, serverQueue);
+      response = remove(message, serverQueue);
+      if (response) message.channel.send(response);
       return;
     case `${prefix}se`:
     case `${prefix}seek`:
-      seek(message, serverQueue, sQueue);
+      response = seek(message, serverQueue, sQueue);
+      if (response) message.channel.send(response);
       return;
     default:
       message.channel.send("Invalid command! Try again or type \`-help\` to view the available commands");
+      return;
+  }
+});
+
+client.on('clickButton', async button => {
+  const serverQueue = sQueue.get(button.guild.id);
+
+  let response;
+  switch(button.id) {
+    case 'stop-button':
+      response = stop(serverQueue, sQueue);
+      if (response) await button.reply.send(response);
+      else await button.defer();
+      return;
+    case 'skip-button':
+      response = skip(serverQueue, true);
+      if (response) await button.reply.send(response, true);
+      else await button.defer();
+      return;
+    case 'queue-button':
+      response = await queue(serverQueue, true);
+      if (response instanceof Discord.MessageEmbed) {
+        await button.reply.send({ embed: response, ephemeral: true });
+      } else {
+        button.reply.send(response, true)
+      }
+      return;
+    case 'lyrics-button':
+      try {
+        lyrics(serverQueue.message, serverQueue);
+      } catch (e) {}
+      await button.defer();
       return;
   }
 });

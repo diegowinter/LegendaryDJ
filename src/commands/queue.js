@@ -1,24 +1,25 @@
 const Discord = require('discord.js');
 const { millisToDuration } = require("../util/time");
 
-module.exports = async function queue(message, serverQueue) {
+module.exports = async function queue(serverQueue, simpleQueue, message) {
   let value = "";
-  if (message.content.split(" ").length > 1) {
-    value = message.content.split(" ")[1];
+
+  if (!simpleQueue) {
+    if (message.content.split(" ").length > 1) {
+      value = message.content.split(" ")[1];
+    } else {
+      value = 1;
+    }
   } else {
     value = 1;
   }
 
   if ((isNaN(value)) || (value < 0)) {
-    return message.channel.send("The page index must to be a positive number!");
-  }
-
-  if (!message.member.voice.channel) {
-    return message.channel.send("You need to be in a voice channel first!");
+    return 'The page index must to be a positive number!';
   }
 
   if (!serverQueue) {
-    return message.channel.send("The queue is empty!");
+    return 'The queue is empty!';
   }
 
   const totalLength = serverQueue.songs.length;
@@ -27,9 +28,9 @@ module.exports = async function queue(message, serverQueue) {
 
   if (value > pages) {
     if ((totalLength === 1) && (value === 1)) {
-      return message.channel.send("The queue is empty!");
+      return 'The queue is empty!';
     }
-    return message.channel.send("The page " + value + " does not exist in the current queue.");
+    else return 'The page ' + value + ' does not exist in the current queue.';
   }
 
   let totalDuration = 0;
@@ -52,7 +53,8 @@ module.exports = async function queue(message, serverQueue) {
     .addField('Now playing', nowPlaying)
     .addField('Up next', songList)
     .setFooter(`Total: ${totalLength - 1} (${millisToDuration(totalDuration)}) • Page: ${value}/${pages}`);
-  message.channel.send(queueEmbed);
+
+  return queueEmbed;
 }
 
 function splitQueue(inputArray) {

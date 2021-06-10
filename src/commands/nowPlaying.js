@@ -3,11 +3,11 @@ const { millisToDuration } = require('../util/time');
 
 module.exports = async function nowPlaying(message, serverQueue) {
   if (!message.member.voice.channel) {
-    return message.channel.send("You need to be in a voice channel first!");
+    return 'You need to be in a voice channel first!';
   }
 
   if (!serverQueue) {
-    return message.channel.send("The queue is empty!");
+    return 'The queue is empty!';
   }
 
   const progressInSecs = serverQueue.connection.dispatcher.streamTime + (serverQueue.currentSeekValue * 1000);
@@ -34,5 +34,5 @@ module.exports = async function nowPlaying(message, serverQueue) {
   if (serverQueue.songs[1] !== undefined) {
     queueEmbed.addField('Up next', serverQueue.songs[1].title)
   }
-  message.channel.send(queueEmbed);
+  return queueEmbed;
 }

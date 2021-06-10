@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 
 module.exports = function help(message) {   
-  message.channel.send(new Discord.MessageEmbed()
+  return new Discord.MessageEmbed()
     .setColor('#e09719')
     .setTitle('Help')
     .addField('Commands',
@@ -16,6 +16,5 @@ module.exports = function help(message) {
       "\`-se (or -seek) <time in format mm:ss>\`: Seek to a position in the song\n"+
       "\`-l (or -lyrics)\`: Get the lyrics of the song"
     )
-    .setFooter(`LegendaryDJ v${process.env.npm_package_version}`)
-  );
+    .setFooter(`LegendaryDJ v${process.env.npm_package_version}`);
 }

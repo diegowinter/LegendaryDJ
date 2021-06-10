@@ -3,7 +3,7 @@ const { searchYouTubeTrack } = require("../services/youtube");
 const Discord = require("discord.js");
 const { millisToDuration } = require("../util/time");
 
-module.exports = async function play(message, song, queue, isSeeking, seek = 0) {
+module.exports = async function play(message, song, queue, isSeeking, controlButtons, seek = 0) {
   const guild = message.guild;
   const serverQueue = queue.get(guild.id);
   if (!song) {
@@ -38,7 +38,7 @@ module.exports = async function play(message, song, queue, isSeeking, seek = 0) 
       })
       .on("finish", () => {
           serverQueue.songs.shift();
-          play(message, serverQueue.songs[0], queue, false);
+          play(message, serverQueue.songs[0], queue, false, controlButtons);
       })
       .on("error", error => {
           console.error('Error (dispatcher error)', error);
@@ -62,7 +62,7 @@ module.exports = async function play(message, song, queue, isSeeking, seek = 0) 
       if (serverQueue.npMessage != null) {
         serverQueue.npMessage.delete();
       }
-      serverQueue.npMessage = await serverQueue.textChannel.send(queueEmbed);
+      serverQueue.npMessage = await serverQueue.textChannel.send({ embed: queueEmbed, component: controlButtons });
     } else {
       serverQueue.currentSeekValue = seek;
       message.reactions.removeAll().catch(error => console.error('Failed to remove reactions: ', error));
@@ -72,6 +72,6 @@ module.exports = async function play(message, song, queue, isSeeking, seek = 0) 
     console.log('Error:', error);
     serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
     serverQueue.songs.shift();
-    play(guild, serverQueue.songs[0], queue);
+    play(guild, serverQueue.songs[0], queue, controlButtons);
   }
 }
