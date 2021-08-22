@@ -85,7 +85,7 @@ client.on('message', async message => {
       return;
     case `${prefix}se`:
     case `${prefix}seek`:
-      response = seek(message, serverQueue, sQueue);
+      response = seek(message, serverQueue, sQueue, controlButtons);
       if (response) message.channel.send(response);
       return;
     default:

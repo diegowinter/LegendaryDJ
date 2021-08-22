@@ -1,7 +1,7 @@
 const { durationToMillis, millisToDuration } = require('../util/time');
 const play = require("./play");
 
-module.exports = function seek(message, serverQueue, queue) {
+module.exports = function seek(message, serverQueue, queue, controlButtons) {
   let value = '';
   if (message.content.split(" ").length > 1) {
     value = message.content.split(" ")[1];
@@ -27,7 +27,6 @@ module.exports = function seek(message, serverQueue, queue) {
   }
 
   const secondsToSeek = millisToSeek / 1000;
-  serverQueue.connection.dispatcher.end();
   message.react('🕒');
-  play(message, serverQueue.songs[0], queue, true, secondsToSeek);
+  play(message, serverQueue.songs[0], queue, true, controlButtons, secondsToSeek);
 }

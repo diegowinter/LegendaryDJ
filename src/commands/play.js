@@ -1,4 +1,5 @@
 const ytdl = require("discord-ytdl-core");
+// const ytdl = require("ytdl-core");
 const { searchYouTubeTrack } = require("../services/youtube");
 const Discord = require("discord.js");
 const { millisToDuration } = require("../util/time");
@@ -34,7 +35,7 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
     });
     const dispatcher = serverQueue.connection
       .play(serverQueue.stream, { 
-          type: 'opus'
+        type: 'opus'
       })
       .on("finish", () => {
           serverQueue.songs.shift();
