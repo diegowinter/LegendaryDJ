@@ -38,9 +38,9 @@ client.on('message', async message => {
     return;
   }
 
-  if (!message.member.voice.channel) {
-    return await message.channel.send('You must to be in a voice channel.')
-  }
+  // if (!message.member.voice.channel) {
+  //   return await message.channel.send('You must to be in a voice channel.')
+  // }
 
   const serverQueue = sQueue.get(message.guild.id);
 

@@ -2,18 +2,28 @@ const Discord = require('discord.js');
 const geniusApi = require('genius-lyrics-api');
 
 module.exports = async function lyrics(message, serverQueue) {
-  if (!message.member.voice.channel) {
-    return message.channel.send("You need to be in a voice channel first!");
+  const query = message.content.replace(message.content.split(' ')[0], '').trim();
+
+  if (query == '') {
+    if (!message.member.voice.channel) {
+      return message.channel.send("You must to be in a voice channel to search the current playback lyrics!");
+    }
+  
+    if (!serverQueue) {
+      return message.channel.send("Nothing is currently playing! Provide the search terms to get lyrics without playing a song.");
+    }
   }
 
-  if (!serverQueue) {
-    return message.channel.send("The queue is empty!");
-  }
+  const title = query == ''
+      ? serverQueue.songs[0].title
+            .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+      : query;
+
+  console.log(title);
 
   try {
     const result = await geniusApi.searchSong({
-      title: serverQueue.songs[0].title
-          .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
+      title: title,
       artist: '',
       apiKey: process.env.GENIUS_TOKEN,
       optimizeQuery: true
@@ -26,7 +36,7 @@ module.exports = async function lyrics(message, serverQueue) {
     let occurrences = 0;
     result.forEach((item, index) => {
       let currentOccurrences = 0;
-      const queryItems = serverQueue.songs[0].title.toLowerCase().split(" ");
+      const queryItems = title.toLowerCase().split(" ");
       queryItems.forEach(word => {
         if (item.title.toLowerCase().includes(word)) {
           currentOccurrences++;
