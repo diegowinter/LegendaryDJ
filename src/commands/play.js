@@ -16,15 +16,29 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
   
   let loadingMessage = undefined;
   if (song.url === undefined) {
-    loadingMessage = await serverQueue.textChannel.send("Loading song...");
+    const spotifyLoadingMessage = new Discord.MessageEmbed()
+        .setColor('#1ABC54')
+        .setTitle('Searching song')
+        .setDescription(`Searching for ${song.title} on YouTube. Please wait...`);
+    loadingMessage = await serverQueue.textChannel.send({ embed: spotifyLoadingMessage });
+
+    let searchResult;
     try {
-      const searchResult = await searchYouTubeTrack(song.title);
-      song.url = searchResult.url;
-      song.duration = searchResult.duration;
+      searchResult = await searchYouTubeTrack(song.title);
     } catch (error) {
       console.log('Error (searching Spotify song)', error);
-      serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
+      const errorMessage = new Discord.MessageEmbed()
+        .setColor('#E61405')
+        .setTitle('Something went wrong')
+        .setDescription(`${song.title} may be unavailable. Skipped.`);
+      serverQueue.textChannel.send({ embed: errorMessage });
+      loadingMessage.delete();
+      serverQueue.songs.shift();
+      play(message, serverQueue.songs[0], queue, false, controlButtons, 0);
+      return;
     }
+    song.url = searchResult.url;
+    song.duration = searchResult.duration;
   }
 
   try {
@@ -43,7 +57,14 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
       })
       .on("error", error => {
           console.error('Error (dispatcher error)', error);
-          serverQueue.textChannel.send("Something went wrong (dispatcher error).")
+          const errorMessage = new Discord.MessageEmbed()
+            .setColor('#E61405')
+            .setTitle('Something went wrong')
+            .setDescription(`Dispatcher error. Try again later.`);
+          serverQueue.textChannel.send({ embed: errorMessage });
+          // serverQueue.textChannel.send("Something went wrong (dispatcher error).");
+          serverQueue.voiceChannel.leave();
+          queue.delete(serverQueue.message.guild.id);
       });
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
     if (!isSeeking) {
@@ -71,8 +92,12 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
     }
   } catch (error) {
     console.log('Error:', error);
-    serverQueue.textChannel.send(`Something went wrong. ${song.title} may be unavailable.`);
+    const errorMessage = new Discord.MessageEmbed()
+      .setColor('#E61405')
+      .setTitle('Something went wrong')
+      .setDescription(`${song.title} may be unavailable. Skipped.`);
+    serverQueue.textChannel.send({ embed: errorMessage });
     serverQueue.songs.shift();
-    play(guild, serverQueue.songs[0], queue, controlButtons);
+    play(message, serverQueue.songs[0], queue, false, controlButtons, 0);
   }
 }
