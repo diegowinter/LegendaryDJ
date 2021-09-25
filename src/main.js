@@ -47,7 +47,11 @@ client.on('message', async message => {
   switch (message.content.toLowerCase().split(' ')[0]) {
     case `${prefix}p`:
     case `${prefix}play`:
-      start(message, serverQueue, sQueue, controlButtons);
+      start(message, serverQueue, sQueue, controlButtons, false);
+      return;
+    case `${prefix}pn`:
+    case `${prefix}playnext`:
+      start(message, serverQueue, sQueue, controlButtons, true);
       return;
     case `${prefix}sk`:
     case `${prefix}skip`:

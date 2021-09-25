@@ -12,7 +12,7 @@ const {
 } = require("../services/spotify");
 const { millisToDuration } = require("../util/time");
 
-module.exports = async function start(message, serverQueue, queue, controlButtons) {
+module.exports = async function start(message, serverQueue, queue, controlButtons, isNext) {
   const args = message.content.split(" ");
 
   const voiceChannel = message.member.voice.channel;
@@ -133,6 +133,7 @@ module.exports = async function start(message, serverQueue, queue, controlButton
         .setDescription(queuePreview)
       );
     }
+
     queueServerInstance.songs = queueServerInstance.songs.concat(songList);
 
     try {
@@ -145,17 +146,26 @@ module.exports = async function start(message, serverQueue, queue, controlButton
       return message.channel.send(err);
     }
   } else {
-    serverQueue.songs = serverQueue.songs.concat(songList);
+    let title;
+
+    if (isNext) {
+      serverQueue.songs = [serverQueue.songs[0], ...songList, ...serverQueue.songs.slice(1)];
+      title = 'Up next';
+    } else {
+      serverQueue.songs = serverQueue.songs.concat(songList);
+      title = 'Queued';
+    }
+
     if (songList.length == 1) {
       return message.channel.send(new Discord.MessageEmbed()
         .setColor('#345b99')
-        .setTitle('Queued')
+        .setTitle(title)
         .setDescription(queuePreview)
       );
     } else if (songList.length > 1) {
       message.channel.send(new Discord.MessageEmbed()
         .setColor('#345b99')
-        .setTitle('Queued')
+        .setTitle(title)
         .setDescription(queuePreview)
       );
     } 
