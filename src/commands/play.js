@@ -65,11 +65,16 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
           const errorMessage = new Discord.MessageEmbed()
             .setColor('#E61405')
             .setTitle('Something went wrong')
-            .setDescription(`Dispatcher error. Try again later.`);
+            .setDescription(`Something went wrong when playing **${serverQueue.songs[0].title}**. Dispatcher error. Try again later.`);
           serverQueue.textChannel.send({ embed: errorMessage });
-          // serverQueue.textChannel.send("Something went wrong (dispatcher error).");
-          serverQueue.voiceChannel.leave();
-          queue.delete(serverQueue.message.guild.id);
+          if (serverQueue.songs.length > 1) {
+            serverQueue.songs.shift();
+            play(message, serverQueue.songs[0], queue, false, controlButtons, 0);
+          } else {
+            serverQueue.voiceChannel.leave();
+            queue.delete(serverQueue.message.guild.id);
+            serverQueue.textChannel.send("End of the queue. Disconnected.");
+          }
       });
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 100);
     if (!isSeeking) {
