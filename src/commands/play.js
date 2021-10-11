@@ -43,9 +43,14 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
 
   try {
     serverQueue.stream = ytdl(song.url, {
+      requestOptions: {
+        headers: {
+          cookie: process.env.COOKIE,
+        }
+      },
       filter: 'audioonly',
       opusEncoded: true,
-      seek
+      seek,
     });
     const dispatcher = serverQueue.connection
       .play(serverQueue.stream, { 
