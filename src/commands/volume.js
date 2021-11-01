@@ -3,11 +3,11 @@ module.exports = function volume(message, serverQueue) {
   if (message.content.split(" ").length > 1) {
     value = message.content.split(" ")[1];
   } else {
-    return 'Usage: \`-v <value between 0 and 100>\`';
+    return 'Usage: \`-v <value between 0 and 200>\`';
   }
 
-  if ((isNaN(value)) || (value < 0) || (value > 100)) {
-    return 'The value must be a number between 0 and 100!';
+  if ((isNaN(value)) || (value < 0) || (value > 200)) {
+    return 'The value must be a number between 0 and 200!';
   }
 
   if (!message.member.voice.channel) {
