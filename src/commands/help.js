@@ -8,6 +8,9 @@ module.exports = function help(message) {
       "\`-p (or -play) <song name/link or playlist link>\`: Play/add to queue a song/playlist " +
           "(YouTube and Spotify links are accepted)\n" +
       "\`-pn (or -playnext) <song name/link or playlist link>\`: Same as play command, but to play next\n" +
+      "\`-pr (or -pauseresume)\`: Pause/resume the player\n" +
+      "\`-ps (or -pause)\`: Pause the player\n" +
+      "\`-re (or -resume)\`: Resume the player\n" +
       "\`-np (or -nowplaying)\`: Show information about current song\n" +
       "\`-q (or -queue)\`: Show current queue\n" +
       "\`-sk (or -skip) <position in queue (optional)>\`: Skip to next song or to given index\n" +

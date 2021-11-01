@@ -11,6 +11,7 @@ const lyrics = require("./commands/lyrics");
 const nowPlaying = require("./commands/nowPlaying");
 const remove = require("./commands/remove");
 const seek = require("./commands/seek");
+const pauseResume = require('./commands/pause-resume');
 const controlButtons = require('./util/buttons');
 
 const client = new Discord.Client();
@@ -48,6 +49,21 @@ client.on('message', async message => {
     case `${prefix}p`:
     case `${prefix}play`:
       start(message, serverQueue, sQueue, controlButtons, false);
+      return;
+    case `${prefix}pr`:
+    case `${prefix}pauseresume`:
+      response = pauseResume(serverQueue, 'pause-resume');
+      if (response) message.channel.send(response);
+      return;
+    case `${prefix}ps`:
+    case `${prefix}pause`:
+      response = pauseResume(serverQueue, 'pause');
+      if (response) message.channel.send(response);
+      return;
+    case `${prefix}re`:
+    case `${prefix}resume`:
+      response = pauseResume(serverQueue, 'resume');
+      if (response) message.channel.send(response);
       return;
     case `${prefix}pn`:
     case `${prefix}playnext`:

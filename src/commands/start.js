@@ -119,6 +119,7 @@ module.exports = async function start(message, serverQueue, queue, controlButton
       connection: null,
       songs: [],
       volume: 100,
+      isPlaying: true, 
       stream: null,
       playing: true,
       npMessage: null,
