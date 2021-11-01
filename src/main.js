@@ -26,8 +26,8 @@ client.on('ready', () => {
 });
 
 client.on('message', async message => {
-  if(message.author.bot) return;
-  if(!message.content.startsWith(prefix)) return;
+  if (message.author.bot) return;
+  if (!message.content.startsWith(prefix)) return;
 
   const commandContent = message.content.toLowerCase().split(' ')[0];
 
@@ -117,16 +117,24 @@ client.on('message', async message => {
 client.on('clickButton', async button => {
   const serverQueue = sQueue.get(button.guild.id);
 
+
   let response;
-  switch(button.id) {
-    case 'stop-button':
-      response = stop(serverQueue, sQueue);
-      if (response) await button.reply.send(response);
-      else await button.defer();
+  switch (button.id) {
+    case 'pause-resume-button':
+      response = pauseResume(serverQueue, 'pause-resume');
+      if (response) {
+        await button.defer();
+        button.channel.send(response);
+      }
       return;
     case 'skip-button':
       response = skip(serverQueue, true);
       if (response) await button.reply.send(response, true);
+      else await button.defer();
+      return;
+    case 'stop-button':
+      response = stop(serverQueue, sQueue);
+      if (response) await button.reply.send(response);
       else await button.defer();
       return;
     case 'queue-button':
@@ -140,7 +148,7 @@ client.on('clickButton', async button => {
     case 'lyrics-button':
       try {
         lyrics(serverQueue.message, serverQueue);
-      } catch (e) {}
+      } catch (e) { }
       await button.defer();
       return;
   }
