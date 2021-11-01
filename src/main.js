@@ -91,7 +91,7 @@ client.on('message', async message => {
       return;
     case `${prefix}l`:
     case `${prefix}lyrics`:
-      lyrics(message, serverQueue);
+      lyrics(message, serverQueue, false);
       return;
     case `${prefix}np`:
     case `${prefix}nowplaying`:
@@ -147,7 +147,7 @@ client.on('clickButton', async button => {
       return;
     case 'lyrics-button':
       try {
-        lyrics(serverQueue.message, serverQueue);
+        lyrics(serverQueue.message, serverQueue, true);
       } catch (e) { }
       await button.defer();
       return;

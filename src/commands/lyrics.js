@@ -1,25 +1,34 @@
 const Discord = require('discord.js');
 const geniusApi = require('genius-lyrics-api');
 
-module.exports = async function lyrics(message, serverQueue) {
+module.exports = async function lyrics(message, serverQueue, fromButton) {
+  // console.log(serverQueue.songs[0].title);
   const query = message.content.replace(message.content.split(' ')[0], '').trim();
 
   if (query == '') {
     if (!message.member.voice.channel) {
       return message.channel.send("You must to be in a voice channel to search the current playback lyrics!");
     }
-  
+
     if (!serverQueue) {
       return message.channel.send("Nothing is currently playing! Provide the search terms to get lyrics without playing a song.");
     }
   }
 
-  const title = query == ''
-      ? serverQueue.songs[0].title
-            .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
-      : query;
+  let title = '';
 
-  console.log(title);
+  if (fromButton == true) {
+    title = serverQueue.songs[0].title
+      .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+  } else {
+    if (query == '') {
+      title = serverQueue.songs[0].title
+        .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+    } else {
+      title = query;
+    }
+  }
+  // console.log(title);
 
   try {
     const result = await geniusApi.searchSong({
@@ -54,7 +63,7 @@ module.exports = async function lyrics(message, serverQueue) {
     let parts = [];
     verses.forEach(verse => {
       if (part.length < 1800) {
-        part += `${verse}\n` ;
+        part += `${verse}\n`;
       } else {
         parts.push(part);
         part = '';
@@ -63,12 +72,12 @@ module.exports = async function lyrics(message, serverQueue) {
     });
     parts.push(part);
 
-    for (i=0; i<parts.length; i++) {
+    for (i = 0; i < parts.length; i++) {
       if (parts[i].length > 2048) {
         return message.channel.send('Something went wrong.');
       }
     }
-    
+
     parts.forEach((part, index) => {
       let embed = new Discord.MessageEmbed()
         .setColor('#3d1775')
