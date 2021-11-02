@@ -12,6 +12,7 @@ const nowPlaying = require("./commands/nowPlaying");
 const remove = require("./commands/remove");
 const seek = require("./commands/seek");
 const pauseResume = require('./commands/pause-resume');
+const previous = require('./commands/previous');
 const controlButtons = require('./util/buttons');
 
 const client = new Discord.Client();
@@ -74,6 +75,11 @@ client.on('message', async message => {
       response = skip(serverQueue, false, message);
       if (response) message.channel.send(response);
       return;
+    case `${prefix}pv`:
+    case `${prefix}previous`:
+      response = previous(serverQueue);
+      if (response) message.channel.send(response);
+      return;
     case `${prefix}st`:
     case `${prefix}stop`:
       response = stop(serverQueue, sQueue);
@@ -120,6 +126,11 @@ client.on('clickButton', async button => {
 
   let response;
   switch (button.id) {
+    case 'previous-button':
+      response = previous(serverQueue);
+      if (response) await button.reply.send(response, true);
+      else await button.defer();
+      return;
     case 'pause-resume-button':
       response = pauseResume(serverQueue, 'pause-resume');
       if (response) {

@@ -7,6 +7,7 @@ const { millisToDuration } = require("../util/time");
 module.exports = async function play(message, song, queue, isSeeking, controlButtons, seek = 0) {
   const guild = message.guild;
   const serverQueue = queue.get(guild.id);
+  // console.log(serverQueue.playedSongs);
   if (!song) {
     serverQueue.voiceChannel.leave();
     queue.delete(guild.id);
@@ -57,8 +58,13 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
         type: 'opus'
       })
       .on("finish", () => {
-          serverQueue.songs.shift();
-          play(message, serverQueue.songs[0], queue, false, controlButtons);
+        // console.log('Terminado, adicionei nas tocadas');
+        if (serverQueue.skippingMethod == 'auto') {
+          serverQueue.playedSongs.push(serverQueue.songs[0]);
+        }
+        serverQueue.skippingMethod = 'auto';
+        serverQueue.songs.shift();
+        play(message, serverQueue.songs[0], queue, false, controlButtons);
       })
       .on("error", error => {
           console.error('Error (dispatcher error)', error);
@@ -68,6 +74,7 @@ module.exports = async function play(message, song, queue, isSeeking, controlBut
             .setDescription(`Something went wrong when playing **${serverQueue.songs[0].title}**. Dispatcher error. Try again later.`);
           serverQueue.textChannel.send({ embed: errorMessage });
           if (serverQueue.songs.length > 1) {
+            serverQueue.playedSongs.push(serverQueue.songs[0]);
             serverQueue.songs.shift();
             play(message, serverQueue.songs[0], queue, false, controlButtons, 0);
           } else {

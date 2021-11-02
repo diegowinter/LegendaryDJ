@@ -23,7 +23,9 @@ module.exports = function skip(serverQueue, simpleSkip, message) {
   }
   
   try {
+    serverQueue.playedSongs.push(...serverQueue.songs.slice(0, value));
     serverQueue.songs = [...serverQueue.songs.slice(value-1)];
+    serverQueue.skippingMethod = 'command';
     serverQueue.connection.dispatcher.end();
   } catch (error) {
     console.log("Error (skip). Maybe an user tried to skip a song without waiting the previous skip to complete.");

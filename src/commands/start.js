@@ -118,6 +118,8 @@ module.exports = async function start(message, serverQueue, queue, controlButton
       voiceChannel: voiceChannel,
       connection: null,
       songs: [],
+      playedSongs: [],
+      skippingMethod: 'auto',
       volume: 100,
       isPlaying: true, 
       stream: null,
