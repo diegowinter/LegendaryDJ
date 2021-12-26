@@ -22,7 +22,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "genius-lyrics-api": "^3.0.5",
     "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.9.1",
+    "ytdl-core": "^4.9.2",
     "ytfps": "^1.0.4",
     "ytsr": "^3.2.1"
   }
