@@ -37,11 +37,13 @@ const getSpotifyPlaylistTracks = async (id) => {
   let songList = [];
   const tracks = await getAllPlaylistTracks(id);
   tracks.forEach(song => {
-    songList.push({
-      title: song.track.artists[0].name + " - " + song.track.name,
-      url: undefined,
-      duration: song.track.duration_ms
-    });
+    if (song.track != null) {
+      songList.push({
+        title: song.track.artists[0].name + " - " + song.track.name,
+        url: undefined,
+        duration: song.track.duration_ms
+      });
+    }
   });
 
   return songList;

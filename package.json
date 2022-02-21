@@ -15,15 +15,15 @@
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
     "discord-buttons": "^3.1.1",
-    "discord-ytdl-core": "^5.0.1",
+    "discord-ytdl-core": "^5.0.4",
     "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "^2.1.2",
     "genius-lyrics-api": "^3.0.5",
-    "spotify-web-api-node": "^5.0.0",
-    "ytdl-core": "^4.9.2",
+    "spotify-web-api-node": "^5.0.2",
+    "ytdl-core": "^4.10.1",
     "ytfps": "^1.0.4",
-    "ytsr": "^3.2.1"
+    "ytsr": "^3.6.0"
   }
 }
